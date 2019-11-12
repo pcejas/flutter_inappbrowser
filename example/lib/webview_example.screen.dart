@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappbrowser/flutter_inappbrowser.dart';
 
-class MyInappBrowser extends InAppBrowser {
+class MyInAppBrowser extends InAppBrowser {
 
  @override
  Future onBrowserCreated() async {
@@ -43,11 +43,11 @@ class MyInappBrowser extends InAppBrowser {
  @override
  void shouldOverrideUrlLoading(String url) {
    print("\n\n override $url\n\n");
-   this.webViewController.loadUrl(url);
+   this.webViewController.loadUrl(url: url);
  }
 
  @override
- void onLoadResource(WebResourceResponse response, WebResourceRequest request) {
+ void onLoadResource(LoadedResource response) {
    print("Started at: " +
        response.startTime.toString() +
        "ms ---> duration: " +
@@ -63,14 +63,47 @@ class MyInappBrowser extends InAppBrowser {
       sourceURL: ${consoleMessage.sourceURL}
       lineNumber: ${consoleMessage.lineNumber}
       message: ${consoleMessage.message}
-      messageLevel: ${consoleMessage.messageLevel}
+      messageLevel: ${consoleMessage.messageLevel.toValue()}
    """);
  }
-  
+
+ @override
+ void onDownloadStart(String url) {
+   print("Download of " + url);
+ }
+
+ @override
+ Future<CustomSchemeResponse> onLoadResourceCustomScheme(String scheme, String url) async {
+   print("custom scheme: " + scheme);
+   return null;
+ }
+
+ @override
+ Future<GeolocationPermissionShowPromptResponse> onGeolocationPermissionsShowPrompt(String origin) async {
+   print("request Geolocation permission API");
+   return null;
+ }
+
+ @override
+ Future<JsAlertResponse> onJsAlert(String message) async {
+   return new JsAlertResponse(handledByClient: false, message: "coma iam");
+ }
+
+ @override
+ Future<JsConfirmResponse> onJsConfirm(String message) {
+   return null;
+ }
+
+ @override
+ Future<JsPromptResponse> onJsPrompt(String message, String defaultValue) {
+   return null;
+ }
 }
 
 class WebviewExampleScreen extends StatefulWidget {
-  final MyInappBrowser browser = new MyInappBrowser();
+  final MyInAppBrowser browser = new MyInAppBrowser();
+  static BuildContext context;
+
   @override
   _WebviewExampleScreenState createState() => new _WebviewExampleScreenState();
 }
@@ -83,13 +116,22 @@ class _WebviewExampleScreenState extends State<WebviewExampleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    WebviewExampleScreen.context = context;
     return new Center(
       child: new RaisedButton(
           onPressed: ()  {
-            widget.browser.open(url: "https://google.com", options: {
-              "useShouldOverrideUrlLoading": true,
-              "useOnLoadResource": true
-            });
+            widget.browser.openFile(
+              assetFilePath: "assets/index.html",
+              //url: "https://www.google.com/",
+              options: InAppBrowserClassOptions(
+                inAppWebViewWidgetOptions: InAppWebViewWidgetOptions(
+                  inAppWebViewOptions: InAppWebViewOptions(
+                    useShouldOverrideUrlLoading: true,
+                    useOnLoadResource: true,
+                  )
+                )
+              )
+            );
           },
           child: Text("Open Webview Browser")),
     );

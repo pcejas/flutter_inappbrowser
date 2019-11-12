@@ -8,6 +8,9 @@ import android.webkit.JavascriptInterface;
 
 import com.pichillilorenzo.flutter_inappbrowser.InAppWebView.InAppWebView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,11 +54,17 @@ public class JavaScriptBridgeInterface {
         getChannel().invokeMethod("onCallJsHandler", obj, new MethodChannel.Result() {
           @Override
           public void success(Object json) {
+            InAppWebView webView = (inAppBrowserActivity != null) ? inAppBrowserActivity.webView : flutterWebView.webView;
+
+            if (webView == null) {
+              // The webview has already been disposed, ignore.
+              return;
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-              flutterWebView.webView.evaluateJavascript("window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];", null);
+              webView.evaluateJavascript("window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];", (MethodChannel.Result) null);
             }
             else {
-              flutterWebView.webView.loadUrl("javascript:window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];");
+              webView.loadUrl("javascript:window." + name + "[" + _callHandlerID + "](" + json + "); delete window." + name + "[" + _callHandlerID + "];");
             }
           }
 
@@ -71,10 +80,9 @@ public class JavaScriptBridgeInterface {
         });
       }
     });
-
   }
 
   private MethodChannel getChannel() {
-    return (inAppBrowserActivity != null) ? InAppBrowserFlutterPlugin.channel : flutterWebView.channel;
+    return (inAppBrowserActivity != null) ? InAppBrowserFlutterPlugin.inAppBrowser.channel : flutterWebView.channel;
   }
 }

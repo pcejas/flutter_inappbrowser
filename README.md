@@ -8,7 +8,6 @@
 [![Donate to this project using Patreon](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://www.patreon.com/bePatron?u=9269604)
 
 A Flutter plugin that allows you to add an inline webview or open an in-app browser window.
-This plugin is inspired by the popular [cordova-plugin-inappbrowser](https://github.com/apache/cordova-plugin-inappbrowser)!
 
 ### Requirements
 - Dart sdk: ">=2.1.0-dev.7.1 <3.0.0"
@@ -25,7 +24,7 @@ Because of [Flutter AndroidX compatibility](https://flutter.dev/docs/development
 If you are starting a new fresh app, you need to create the Flutter App with `flutter create -i swift` (see [flutter/flutter#13422 (comment)](https://github.com/flutter/flutter/issues/13422#issuecomment-392133780)), otherwise, you will get this message:
 ```
 === BUILD TARGET flutter_inappbrowser OF PROJECT Pods WITH CONFIGURATION Debug ===
-The “Swift Language Version” (SWIFT_VERSION) build setting must be set to a supported value for targets which use Swift. Supported values are: 3.0, 4.0, 4.2. This setting can be set in the build settings editor.
+The “Swift Language Version” (SWIFT_VERSION) build setting must be set to a supported value for targets which use Swift. Supported values are: 3.0, 4.0, 4.2, 5.0. This setting can be set in the build settings editor.
 ```
 
 If you still have this problem, try to edit iOS `Podfile` like this (see [#15](https://github.com/pichillilorenzo/flutter_inappbrowser/issues/15)):
@@ -38,7 +37,7 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['SWIFT_VERSION'] = '4.0'  # required by simple_permission
+      config.build_settings['SWIFT_VERSION'] = '5.0'  # required by simple_permission
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
@@ -70,8 +69,8 @@ See the online [docs](https://pub.dartlang.org/documentation/flutter_inappbrowse
 ### `InAppWebView` class
 Flutter Widget for adding an **inline native WebView** integrated into the flutter widget tree.
 
-[AndroidView](https://docs.flutter.io/flutter/widgets/AndroidView-class.html) and [UiKitView](https://docs.flutter.io/flutter/widgets/UiKitView-class.html) are not officially stable yet!
-So, if you want use it, you can but you will have some limitation such as the inability to use the keyboard!
+The plugin relies on Flutter's mechanism (in developers preview) for embedding Android and iOS native views: [AndroidView](https://docs.flutter.io/flutter/widgets/AndroidView-class.html) and [UiKitView](https://docs.flutter.io/flutter/widgets/UiKitView-class.html).
+Known issues are tagged with the [platform-views](https://github.com/flutter/flutter/labels/a%3A%20platform-views) label in the [Flutter official repo](https://github.com/flutter/flutter).
 
 To use `InAppWebView` class on iOS you need to opt-in for the embedded views preview by adding a boolean property to the app's `Info.plist` file, with the key `io.flutter.embedded_views_preview` and the value `YES`.
 
@@ -121,7 +120,7 @@ class _MyAppState extends State<MyApp> {
                 padding: EdgeInsets.all(20.0),
                 child: Text("CURRENT URL\n${ (url.length > 50) ? url.substring(0, 50) + "..." : url }"),
               ),
-              (progress != 1.0) ? LinearProgressIndicator(value: progress) : null,
+              (progress != 1.0) ? LinearProgressIndicator(value: progress) : Container(),
               Expanded(
                 child: Container(
                   margin: const EdgeInsets.all(10.0),
@@ -252,7 +251,8 @@ All platforms support:
   - __domStorageEnabled__: Set to `true` if you want the DOM storage API is enabled. The default value is `false`.
   - __useWideViewPort__: Set to `true` if the WebView should enable support for the "viewport" HTML meta tag or should use a wide viewport. When the value of the setting is false, the layout width is always set to the width of the WebView control in device-independent (CSS) pixels. When the value is true and the page contains the viewport meta tag, the value of the width specified in the tag is used. If the page does not contain the tag or does not provide a width, then a wide viewport will be used. The default value is `true`.
   - __safeBrowsingEnabled__: Set to `true` if you want the Safe Browsing is enabled. Safe Browsing allows WebView to protect against malware and phishing attacks by verifying the links. The default value is `true`. 
-  - __textZoom__: Set text scaling of the WebView. The default value is `100`.  
+  - __textZoom__: Set text scaling of the WebView. The default value is `100`.
+  - __mixedContentMode__: Configures the WebView's behavior when a secure origin attempts to load a resource from an insecure origin. By default, apps that target `Build.VERSION_CODES.KITKAT` or below default to `MIXED_CONTENT_ALWAYS_ALLOW`. Apps targeting `Build.VERSION_CODES.LOLLIPOP` default to `MIXED_CONTENT_NEVER_ALLOW`. The preferred and most secure mode of operation for the WebView is `MIXED_CONTENT_NEVER_ALLOW` and use of `MIXED_CONTENT_ALWAYS_ALLOW` is strongly discouraged.
 
   **iOS** supports these additional options:
 
@@ -828,6 +828,7 @@ Opens an `url` in a new `InAppBrowser` instance.
   - __safeBrowsingEnabled__: Set to `true` if you want the Safe Browsing is enabled. Safe Browsing allows WebView to protect against malware and phishing attacks by verifying the links. The default value is `true`.
   - __progressBar__: Set to `false` to hide the progress bar at the bottom of the toolbar at the top. The default value is `true`.
   - __textZoom__: Set text scaling of the WebView. The default value is `100`.
+  - __mixedContentMode__: Configures the WebView's behavior when a secure origin attempts to load a resource from an insecure origin. By default, apps that target `Build.VERSION_CODES.KITKAT` or below default to `MIXED_CONTENT_ALWAYS_ALLOW`. Apps targeting `Build.VERSION_CODES.LOLLIPOP` default to `MIXED_CONTENT_NEVER_ALLOW`. The preferred and most secure mode of operation for the WebView is `MIXED_CONTENT_NEVER_ALLOW` and use of `MIXED_CONTENT_ALWAYS_ALLOW` is strongly discouraged.
 
   **iOS** supports these additional options:
 
