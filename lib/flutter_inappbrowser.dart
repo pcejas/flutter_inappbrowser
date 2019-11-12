@@ -27,6 +27,7 @@ export 'src/in_app_browser.dart';
 export 'src/channel_manager.dart';
 export 'src/chrome_safari_browser.dart';
 export 'src/chrome_safari_browser.dart';
+export 'src/cookie_manager.dart';
 export 'src/in_app_localhost_server.dart';
 export 'src/webview_options.dart';
 export 'src/content_blocker.dart';
